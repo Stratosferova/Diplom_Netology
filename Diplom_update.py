@@ -13,6 +13,10 @@ config = configparser.ConfigParser()
 config.read('token.ini')
 CLIENT_ID = config['data']['client_id']
 access_token = config['data']['token']
+
+ERR_RATELIMIT = 6 #ошибка если обращений в секунду слишком много
+ERR_FORBID = 7 #если пользователь закрыл свои группы
+ERR_BAN = 18 #если удален или забанен
     
 def get_friends(access_token, **kwargs):
     kwargs.update({
@@ -28,7 +32,7 @@ def get_friends(access_token, **kwargs):
             time.sleep(1)
             continue
         except KeyError:
-            if response_data['error']['error_code'] == 6: #ошибка если обращений в секунду слишком много
+            if response_data['error']['error_code'] == ERR_RATELIMIT: 
                 time.sleep(1)
                 continue
         break
@@ -48,12 +52,12 @@ def get_groups(access_token, **kwargs):
             time.sleep(1)
             continue
         except KeyError:
-            if response_data['error']['error_code'] == 6: #ошибка если обращений в секунду слишком много
+            if response_data['error']['error_code'] == ERR_RATELIMIT: 
                 time.sleep(1)
                 continue
-            elif response_data['error']['error_code'] == 7: #если пользователь закрыл свои группы
+            elif response_data['error']['error_code'] == ERR_FORBID: 
                 pass
-            elif response_data['error']['error_code'] == 18: #если удален или забанен
+            elif response_data['error']['error_code'] == ERR_BAN: 
                 pass
         break
     return(groups)
@@ -68,17 +72,16 @@ def main():
             continue
         for group_id in user_groups:
             try:
-                del groups_dict[group_id] #удаляем из списка исходного пользователя те группы, что есть у друзей
+                del groups_dict[group_id] 
             except KeyError:
                 pass
     groups = []
     for item in groups_dict.values():
         groups.append({'id':item['id'], 'name':item['name'],'members_count':item['members_count']})
-    print(groups) #приводим данные в порядок для json
+    print(groups) 
     
     with open('groups.json', 'w', encoding='utf-8') as outfile:
-        json.dump(groups, outfile, indent=2, ensure_ascii=True) #сохраняем ответ в json
+        json.dump(groups, outfile, indent=2, ensure_ascii=True) 
         
 if __name__ == '__main__':
     main()
-
