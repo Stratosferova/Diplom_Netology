@@ -1,11 +1,6 @@
-
-# coding: utf-8
-
 # Вывести список групп в ВК в которых состоит пользователь, но не
 # состоит никто из его друзей. В качестве жертвы, на ком тестировать, можно
 # использовать: https://vk.com/tim_leary
-
-# In[54]:
 
 import requests
 from urllib.parse import urlencode
@@ -29,7 +24,6 @@ def get_friends(access_token, **kwargs):
         try:
             response_data = requests.get('https://api.vk.com/method/friends.get', kwargs).json()
             friends = response_data['response']['items']
-            #print(user, response_data['response']) #позволяет распечатать список групп, но для задачи это не нужно
         except requests.RequestException:
             time.sleep(1)
             continue
@@ -50,12 +44,10 @@ def get_groups(access_token, **kwargs):
         try:
             response_data = requests.get('https://api.vk.com/method/groups.get', kwargs).json()
             groups = response_data['response']['items']
-            #print(user, response_data['response']) #позволяет распечатать список групп, но для задачи это не нужно
         except requests.RequestException:
             time.sleep(1)
             continue
         except KeyError:
-            #print('ERROR', response_data['error']) #выводит все ошибки - для нашей задачи это не нужно
             if response_data['error']['error_code'] == 6: #ошибка если обращений в секунду слишком много
                 time.sleep(1)
                 continue
@@ -76,7 +68,7 @@ def main():
             continue
         for group_id in user_groups:
             try:
-                del groups_dict[group_id] #удаляем из списка исходного пользоватял те группы, что есть у друзей
+                del groups_dict[group_id] #удаляем из списка исходного пользователя те группы, что есть у друзей
             except KeyError:
                 pass
     groups = []
@@ -89,14 +81,4 @@ def main():
         
 if __name__ == '__main__':
     main()
-
-
-# In[24]:
-
-
-
-
-# In[ ]:
-
-
 
